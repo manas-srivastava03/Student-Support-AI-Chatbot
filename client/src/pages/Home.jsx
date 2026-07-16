@@ -11,40 +11,43 @@ function Home() {
 
   // Stores all chat messages
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   // Runs when the user clicks Send
   const handleSend = async () => {
     if (input.trim() === "") return;
-  
+
     // Store user's message
     const userMessage = {
       sender: "user",
       text: input,
     };
-  
+
     setMessages((prev) => [...prev, userMessage]);
-  
+
     // Save current input before clearing
     const currentMessage = input;
-  
+
     // Clear input immediately
     setInput("");
-  
+    setLoading(true);
+
     try {
       // Send message to FastAPI
       const aiReply = await sendMessage(currentMessage);
-  
+      setLoading(false);
+
       // Store AI response
       const botMessage = {
         sender: "bot",
         text: aiReply,
       };
-  
+
       setMessages((prev) => [...prev, botMessage]);
-  
+
     } catch (error) {
       console.error(error);
-  
+      setLoading(false);
       setMessages((prev) => [
         ...prev,
         {
@@ -63,12 +66,16 @@ function Home() {
 
         <WelcomeSection />
 
-        <ChatWindow messages={messages} />
+        <ChatWindow
+          messages={messages}
+          loading={loading}
+        />
 
         <MessageInput
           input={input}
           setInput={setInput}
           handleSend={handleSend}
+          loading={loading}
         />
 
       </main>
