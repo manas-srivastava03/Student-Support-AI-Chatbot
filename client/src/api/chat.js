@@ -27,3 +27,8 @@ export async function sendMessage(message) {
   
     return response.json();
   }
+  export async function clearMessages() {
+    await fetch("http://127.0.0.1:8000/api/messages", {
+      method: "DELETE",
+    });
+  }

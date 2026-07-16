@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import WelcomeSection from "../components/WelcomeSection";
 import MessageInput from "../components/MessageInput";
 import ChatWindow from "../components/ChatWindow";
-import { sendMessage, getMessages } from "../api/chat";
+import { sendMessage, getMessages, clearMessages } from "../api/chat";
 
 function Home() {
   // Stores the current text inside the input box
@@ -12,6 +12,7 @@ function Home() {
   // Stores all chat messages
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
 
   useEffect(() => {
     async function loadMessages() {
@@ -20,11 +21,23 @@ function Home() {
         setMessages(history);
       } catch (error) {
         console.error("Failed to load chat history:", error);
+      } finally {
+        setHistoryLoaded(true);
       }
     }
   
     loadMessages();
   }, []);
+
+  const handleNewChat = async () => {
+    try {
+      await clearMessages();
+  
+      setMessages([]);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Runs when the user clicks Send
   const handleSend = async () => {
@@ -73,11 +86,11 @@ function Home() {
 
   return (
     <div className="flex min-h-screen flex-col bg-gray-50">
-      <Navbar />
+      <Navbar handleNewChat={handleNewChat} />
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-8 lg:px-8">
 
-        <WelcomeSection />
+      {historyLoaded && messages.length === 0 && <WelcomeSection />}
 
         <ChatWindow
           messages={messages}

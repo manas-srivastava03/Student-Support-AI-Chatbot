@@ -63,6 +63,10 @@ def health_check():
 # Chat Endpoint
 # ----------------------------
 
+@app.delete("/api/messages")
+def clear_messages():
+    messages_collection.delete_many({})
+    return {"message": "Chat history cleared"}
 
 @app.get("/api/messages")
 def get_messages():
