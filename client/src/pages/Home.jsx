@@ -1,6 +1,7 @@
 import Navbar from '../components/Navbar'
 import WelcomeSection from "../components/WelcomeSection";
 import MessageInput from '../components/MessageInput'
+import ChatWindow from "../components/ChatWindow";
 
 function Home() {
   return (
@@ -15,6 +16,7 @@ function Home() {
         <WelcomeSection />
 
         {/* Placeholder for ChatWindow component (coming soon) */}
+        <ChatWindow />
         {/* flex-1 lets this section grow to fill available space */}
         <div aria-label="Chat window placeholder" className="flex-1" />
 
