@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import WelcomeSection from "../components/WelcomeSection";
 import MessageInput from "../components/MessageInput";
 import ChatWindow from "../components/ChatWindow";
-import { sendMessage } from "../api/chat";
+import { sendMessage, getMessages } from "../api/chat";
 
 function Home() {
   // Stores the current text inside the input box
@@ -12,6 +12,19 @@ function Home() {
   // Stores all chat messages
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadMessages() {
+      try {
+        const history = await getMessages();
+        setMessages(history);
+      } catch (error) {
+        console.error("Failed to load chat history:", error);
+      }
+    }
+  
+    loadMessages();
+  }, []);
 
   // Runs when the user clicks Send
   const handleSend = async () => {

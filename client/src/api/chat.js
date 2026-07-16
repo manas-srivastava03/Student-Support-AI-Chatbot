@@ -17,3 +17,13 @@ export async function sendMessage(message) {
   
     return data.reply;
   }
+
+  export async function getMessages() {
+    const response = await fetch("http://127.0.0.1:8000/api/messages");
+  
+    if (!response.ok) {
+      throw new Error("Failed to fetch messages");
+    }
+  
+    return response.json();
+  }
