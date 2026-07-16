@@ -1,5 +1,6 @@
-import WelcomeSection from "../components/WelcomeSection";
 import Navbar from '../components/Navbar'
+import WelcomeSection from "../components/WelcomeSection";
+import MessageInput from '../components/MessageInput'
 
 function Home() {
   return (
@@ -18,7 +19,7 @@ function Home() {
         <div aria-label="Chat window placeholder" className="flex-1" />
 
         {/* Placeholder for MessageInput component (coming soon) */}
-        <div aria-label="Message input placeholder" />
+        <MessageInput />
       </main>
     </div>
   )
