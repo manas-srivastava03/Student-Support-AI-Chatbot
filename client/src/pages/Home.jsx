@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import WelcomeSection from "../components/WelcomeSection";
 import MessageInput from "../components/MessageInput";
 import ChatWindow from "../components/ChatWindow";
+import { sendMessage } from "../api/chat";
 
 function Home() {
   // Stores the current text inside the input box
@@ -12,18 +13,46 @@ function Home() {
   const [messages, setMessages] = useState([]);
 
   // Runs when the user clicks Send
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() === "") return;
-
-    const newMessage = {
+  
+    // Store user's message
+    const userMessage = {
       sender: "user",
       text: input,
     };
-
-    setMessages([...messages, newMessage]);
-
-    // Clear the input box
+  
+    setMessages((prev) => [...prev, userMessage]);
+  
+    // Save current input before clearing
+    const currentMessage = input;
+  
+    // Clear input immediately
     setInput("");
+  
+    try {
+      // Send message to FastAPI
+      const aiReply = await sendMessage(currentMessage);
+  
+      // Store AI response
+      const botMessage = {
+        sender: "bot",
+        text: aiReply,
+      };
+  
+      setMessages((prev) => [...prev, botMessage]);
+  
+    } catch (error) {
+      console.error(error);
+  
+      setMessages((prev) => [
+        ...prev,
+        {
+          sender: "bot",
+          text: "❌ Unable to contact the server.",
+        },
+      ]);
+    }
   };
 
   return (
