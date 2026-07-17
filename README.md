@@ -178,8 +178,6 @@ npm run dev
 
 ### Chat Interface
 
-### Chat Interface
-
 <p align="center">
   <img src="assets/chat.png" width="900">
 </p>
