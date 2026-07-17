@@ -6,11 +6,16 @@ import ChatWindow from "../components/ChatWindow";
 import { sendMessage, getMessages, clearMessages } from "../api/chat";
 
 function Home() {
+  // Stores the current text inside the input box
   const [input, setInput] = useState("");
+
+  // Stores all chat messages
   const [messages, setMessages] = useState([]);
+
   const [loading, setLoading] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
+  // Load chat history when the app starts
   useEffect(() => {
     async function loadMessages() {
       try {
@@ -26,10 +31,12 @@ function Home() {
     loadMessages();
   }, []);
 
+  // Handles quick action buttons
   const handleSuggestionClick = (prompt) => {
     handleSend(prompt);
   };
 
+  // Clears the current chat
   const handleNewChat = async () => {
     try {
       await clearMessages();
@@ -39,54 +46,47 @@ function Home() {
     }
   };
 
+  // Sends a message to the backend
   const handleSend = async (customMessage = null) => {
-    console.log("handleSend started");
-
     const messageToSend = customMessage ?? input;
-    console.log("Message:", messageToSend);
 
-    if (messageToSend.trim() === "") {
-      console.log("Empty message");
-      return;
-    }
-
-    console.log("Clearing input");
+    if (messageToSend.trim() === "") return;
 
     const userMessage = {
       sender: "user",
       text: messageToSend,
     };
 
+    // Show user's message immediately
     setMessages((prev) => [...prev, userMessage]);
 
-    const currentMessage = messageToSend;
-
+    // Clear the input field
     if (!customMessage) {
       setInput("");
     }
 
-    console.log("Setting loading");
-
     setLoading(true);
 
     try {
-      console.log("Calling API");
+      const aiReply = await sendMessage(messageToSend);
 
-      const aiReply = await sendMessage(currentMessage);
+      const botMessage = {
+        sender: "bot",
+        text: aiReply,
+      };
 
-      console.log("API returned:", aiReply);
-
-      setLoading(false);
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error) {
+      console.error(error);
 
       setMessages((prev) => [
         ...prev,
         {
           sender: "bot",
-          text: aiReply,
+          text: "❌ Unable to contact the server.",
         },
       ]);
-    } catch (error) {
-      console.error(error);
+    } finally {
       setLoading(false);
     }
   };
@@ -97,9 +97,7 @@ function Home() {
 
       <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 px-4 py-6 sm:gap-6 sm:px-6 sm:py-8 lg:px-8">
         {historyLoaded && messages.length === 0 && (
-          <WelcomeSection
-            onSuggestionClick={handleSuggestionClick}
-          />
+          <WelcomeSection onSuggestionClick={handleSuggestionClick} />
         )}
 
         <ChatWindow
