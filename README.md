@@ -172,19 +172,24 @@ npm run dev
 
 ### Home Page
 
-![Home Page](assets/home.png)
+<p align="center">
+  <img src="assets/home.png" width="900">
+</p>
 
 ### Chat Interface
 
-![Chat Interface](assets/chat.png)
+### Chat Interface
 
-### Mobile Home View
+<p align="center">
+  <img src="assets/chat.png" width="900">
+</p>
 
-![Mobile View](assets/mobilehome.jpg)
+### Mobile Home View and Mobile chat View
 
-### Mobile chat View
-
-![Mobile View](assets/mobilechat.jpg)
+<p align="center">
+  <img src="assets/mobilehome.jpg" width="300">
+  <img src="assets/mobilechat.jpg" width="300">
+</p>
 
 ---
 
