@@ -24,8 +24,8 @@ app = FastAPI(title="Student Support AI")
 # ----------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=False,
+    allow_origins=["https://student-support-ai-chatbot.vercel.app"],
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
