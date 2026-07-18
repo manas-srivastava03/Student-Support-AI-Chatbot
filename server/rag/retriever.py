@@ -2,7 +2,7 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from rag.vector_store import load_vector_store
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
 
 
 def retrieve_chunks(question, category="admission", top_k=5):
