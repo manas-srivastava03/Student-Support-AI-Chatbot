@@ -1,5 +1,11 @@
+print("Retriever import started")
+
+
+
 import numpy as np
 from sentence_transformers import SentenceTransformer
+print("SentenceTransformer imported")
+
 from rag.vector_store import load_vector_store
 
 model = None

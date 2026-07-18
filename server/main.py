@@ -1,15 +1,31 @@
+print("STEP 1")
 import os
-import time
-from datetime import datetime
 
+print("STEP 2")
+import time
+
+print("STEP 3")
 from dotenv import load_dotenv
+
+print("STEP 4")
 from fastapi import FastAPI
+
+print("STEP 5")
 from fastapi.middleware.cors import CORSMiddleware
+
+print("STEP 6")
 from pydantic import BaseModel
+
+print("STEP 7")
 from google import genai
+
+print("STEP 8")
 from pymongo import MongoClient
 
+print("STEP 9")
 from rag.retriever import retrieve_chunks
+
+print("STEP 10")
 
 # ----------------------------
 # Load Environment Variables
