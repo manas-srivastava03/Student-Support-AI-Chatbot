@@ -63,6 +63,10 @@ class ChatRequest(BaseModel):
 def health_check():
     return {"status": "ok"}
 
+@app.get("/")
+def root():
+    return {"message": "Student Support AI Backend is running"}
+
 # ----------------------------
 # Clear Chat History
 # ----------------------------
