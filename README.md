@@ -1,6 +1,6 @@
-# 🎓 Student Support AI Chatbot
+# 🎓 Student Support AI Chatbot (RAG Powered)
 
-An AI-powered Student Support Chatbot built using **React**, **FastAPI**, **Google Gemini AI**, and **MongoDB Atlas**. The application provides students with instant answers to academic queries through an intuitive conversational interface.
+An AI-powered Student Support Chatbot built using **React**, **FastAPI**, **Google Gemini**, **FAISS Vector Database**, and **MongoDB Atlas**. The chatbot uses **Retrieval-Augmented Generation (RAG)** to answer student queries by retrieving relevant information from institutional PDF documents before generating AI responses.
 
 🌐 **Live Demo:** https://student-support-ai-chatbot.vercel.app
 
@@ -8,110 +8,164 @@ An AI-powered Student Support Chatbot built using **React**, **FastAPI**, **Goog
 
 ---
 
-## 📖 Overview
+# 📖 Overview
 
-Student Support AI Chatbot is a full-stack AI application designed to simplify access to student-related information. It offers a clean and responsive chat interface where users can ask questions or use predefined quick actions such as Admissions, Scholarships, Fee Structure, and Examinations.
+Student Support AI Chatbot is a full-stack AI application designed to help students quickly access college-related information such as admissions, academics, examinations, placements, and scholarships.
 
-The backend integrates with **Google Gemini AI** to generate intelligent responses, while **MongoDB Atlas** stores chat history for persistence across sessions.
+Unlike traditional AI chatbots that rely solely on an LLM, this project implements a **Retrieval-Augmented Generation (RAG)** pipeline. User queries are first converted into embeddings, matched against a FAISS vector database built from PDF documents, and then the retrieved context is provided to Google Gemini to generate accurate, context-aware responses.
 
 ---
 
-## ✨ Features
+# ✨ Features
 
-- 🤖 AI-powered chatbot using Google Gemini
-- 💬 Real-time conversational interface
-- 📚 Quick Action Buttons
+- 🤖 AI-powered conversational assistant
+- 📚 Retrieval-Augmented Generation (RAG)
+- 📄 PDF-based knowledge base
+- 🧠 Semantic search using Gemini Embeddings
+- ⚡ FAISS Vector Database for fast retrieval
+- 🏷️ Category-wise knowledge bases
   - Admissions
-  - Fee Structure
+  - Academics
   - Examinations
+  - Placements
   - Scholarships
-- 📝 Persistent chat history using MongoDB Atlas
+- 💬 Persistent chat history using MongoDB Atlas
 - 🗑️ New Chat functionality
-- 📱 Responsive design
-- ☁️ Cloud deployment using Vercel and Render
+- 📱 Fully responsive interface
+- ☁️ Cloud deployment with Vercel & Render
 
 ---
 
-## 🛠️ Tech Stack
+# 🏗️ System Architecture
 
-### Frontend
+```text
+                    User Query
+                        │
+                        ▼
+              React Frontend (Vite)
+                        │
+                        ▼
+             FastAPI Backend (Python)
+                        │
+         ┌──────────────┴──────────────┐
+         │                             │
+         ▼                             ▼
+Gemini Embeddings              MongoDB Atlas
+         │                      (Chat History)
+         ▼
+   FAISS Vector Search
+         │
+         ▼
+Relevant PDF Chunks Retrieved
+         │
+         ▼
+ Google Gemini Flash Model
+         │
+         ▼
+     AI Generated Response
+         │
+         ▼
+        User
+```
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+
 - React.js
 - Vite
 - Tailwind CSS
 - JavaScript
 
-### Backend
+## Backend
+
 - FastAPI
 - Python
 - Google Gemini API
-- PyMongo
+- Gemini Embeddings API
+- FAISS
+- PyMuPDF
 
-### Database
+## Database
+
 - MongoDB Atlas
 
-### Deployment
+## AI / RAG
+
+- Google Gemini Flash
+- Gemini Embedding-001
+- FAISS Vector Store
+- PDF Chunking
+- Semantic Retrieval
+
+## Deployment
+
 - Vercel (Frontend)
 - Render (Backend)
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
 ```text
 Student-Support-AI-Chatbot
 │
-├── client
-│   ├── src
-│   ├── public
-│   ├── package.json
-│   └── vite.config.js
+├── client/
+│   ├── src/
+│   ├── public/
+│   └── package.json
 │
-├── server
+├── server/
+│   ├── data/                 # PDF Knowledge Base
+│   ├── rag/
+│   │    ├── pdf_loader.py
+│   │    ├── chunker.py
+│   │    ├── embeddings.py
+│   │    ├── vector_store.py
+│   │    ├── retriever.py
+│   │    └── build_indexes.py
+│   │
+│   ├── vector_db/            # FAISS Indexes
 │   ├── main.py
 │   ├── requirements.txt
-│   ├── .env
-│   └── ...
+│   └── .env
 │
 └── README.md
 ```
 
 ---
 
-## 🚀 Installation
+# 🚀 Installation
 
-### 1. Clone the Repository
+## 1. Clone Repository
 
 ```bash
 git clone https://github.com/manas-srivastava03/Student-Support-AI-Chatbot.git
-```
 
-```bash
 cd Student-Support-AI-Chatbot
 ```
 
 ---
 
-### 2. Backend Setup
+## 2. Backend Setup
 
 ```bash
 cd server
-```
 
-Create a virtual environment
-
-```bash
 python -m venv venv
 ```
 
-Activate it
+### Activate Environment
 
-**Windows**
+Windows
 
 ```bash
 venv\Scripts\activate
 ```
 
-**Linux / macOS**
+Linux/macOS
 
 ```bash
 source venv/bin/activate
@@ -123,11 +177,17 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
-Create a `.env` file
+Create a `.env`
 
 ```env
-GEMINI_API_KEY=your_google_gemini_api_key
-MONGODB_URI=your_mongodb_atlas_connection_string
+GEMINI_API_KEY=your_api_key
+MONGODB_URI=your_mongodb_connection_string
+```
+
+Build the FAISS indexes
+
+```bash
+python rag/build_indexes.py
 ```
 
 Run the backend
@@ -138,89 +198,115 @@ uvicorn main:app --reload
 
 ---
 
-### 3. Frontend Setup
+## 3. Frontend Setup
 
 ```bash
 cd client
-```
 
-Install dependencies
-
-```bash
 npm install
-```
 
-Run the development server
-
-```bash
 npm run dev
 ```
 
 ---
 
-## 🌍 Deployment
+# 🌍 Deployment
 
 | Service | Platform |
 |----------|----------|
 | Frontend | Vercel |
 | Backend | Render |
 | Database | MongoDB Atlas |
+| Vector Store | FAISS |
 
 ---
 
-## 📸 Screenshots
+# 📸 Screenshots
 
-### Home Page
-
-<p align="center">
-  <img src="assets/home.png" width="900">
-</p>
-
-### Chat Interface
+## Home Page
 
 <p align="center">
-  <img src="assets/chat.png" width="900">
-</p>
-
-### Mobile Home View and Mobile chat View
-
-<p align="center">
-  <img src="assets/mobilehome.jpg" width="300">
-  <img src="assets/mobilechat.jpg" width="300">
+<img src="assets/home.png" width="900">
 </p>
 
 ---
 
-## 🔮 Future Enhancements
+## Chat Interface
 
-- 📄 Retrieval-Augmented Generation (RAG)
-- 📚 PDF Knowledge Base Integration
-- 🎤 Voice Input
-- 🔐 User Authentication
-- 🌙 Dark Mode
-- 🌐 Multi-language Support
-- 📊 Student Analytics Dashboard
+<p align="center">
+<img src="assets/chat.png" width="900">
+</p>
 
 ---
 
-## 🤝 Contributing
+## Thinking State
 
-Contributions are welcome.
+<p align="center">
+<img src="assets/thinking.png" width="900">
+</p>
+
+---
+
+## AI Response
+
+<p align="center">
+<img src="assets/reply.png" width="900">
+</p>
+
+---
+
+## Mobile View
+
+<p align="center">
+<img src="assets/mobilehome.jpg" width="280">
+<img src="assets/mobileselect.jpg" width="280">
+<img src="assets/mobilechat.jpg" width="280">
+</p>
+
+---
+
+# 🚀 How RAG Works
+
+1. User asks a question.
+2. The query is converted into a **Gemini Embedding**.
+3. FAISS searches the most relevant chunks from the selected PDF knowledge base.
+4. Retrieved context is sent to **Google Gemini Flash**.
+5. Gemini generates an accurate, context-aware response.
+6. Chat history is stored in MongoDB Atlas.
+
+---
+
+# 🔮 Future Enhancements
+
+- 📑 Display source citations with page numbers
+- 📄 Admin dashboard for uploading PDFs
+- 🔐 User authentication
+- 🎙️ Voice input support
+- 🌐 Multi-language support
+- 💬 Streaming AI responses
+- 📊 Chat analytics dashboard
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome!
 
 1. Fork the repository
-2. Create your feature branch
+
+2. Create a new branch
 
 ```bash
 git checkout -b feature-name
 ```
 
-3. Commit your changes
+3. Commit changes
 
 ```bash
-git commit -m "Add new feature"
+git commit -m "Add feature"
 ```
 
-4. Push to the branch
+4. Push changes
 
 ```bash
 git push origin feature-name
@@ -230,18 +316,22 @@ git push origin feature-name
 
 ---
 
-## 📄 License
+# 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
 
 ---
 
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Manas Srivastava**
 
 GitHub: https://github.com/manas-srivastava03
 
+LinkedIn: *(Add your LinkedIn profile here if you'd like.)*
+
 ---
 
-## ⭐ If you found this project useful, consider giving it a star on GitHub!
+# ⭐ Support
+
+If you found this project useful, consider giving it a ⭐ on GitHub!
