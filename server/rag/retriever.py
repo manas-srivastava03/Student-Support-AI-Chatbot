@@ -1,35 +1,34 @@
-print("Retriever import started")
-
-
-
+import os
 import numpy as np
-from sentence_transformers import SentenceTransformer
-print("SentenceTransformer imported")
+
+from dotenv import load_dotenv
+from google import genai
 
 from rag.vector_store import load_vector_store
 
-model = None
+load_dotenv()
+
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
 
-def get_model():
-    global model
-
-    if model is None:
-        print("Loading embedding model...")
-        model = SentenceTransformer("paraphrase-MiniLM-L3-v2")
-        print("Embedding model loaded.")
-
-    return model
-
-
-def retrieve_chunks(question, category="admission", top_k=5):
+def retrieve_chunks(question, category="admission", top_k=3):
 
     index, chunks = load_vector_store(category)
 
-    query_embedding = get_model().encode([question])
+    response = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=question
+    )
+
+    query_embedding = np.array(
+        [response.embeddings[0].values],
+        dtype=np.float32
+    )
 
     distances, indices = index.search(
-        np.array(query_embedding),
+        query_embedding,
         top_k
     )
 

@@ -1,31 +1,23 @@
-print("STEP 1")
+
 import os
 
-print("STEP 2")
 import time
 
-print("STEP 3")
+from datetime import datetime   
+
 from dotenv import load_dotenv
 
-print("STEP 4")
 from fastapi import FastAPI
 
-print("STEP 5")
 from fastapi.middleware.cors import CORSMiddleware
 
-print("STEP 6")
 from pydantic import BaseModel
 
-print("STEP 7")
 from google import genai
 
-print("STEP 8")
 from pymongo import MongoClient
 
-print("STEP 9")
 from rag.retriever import retrieve_chunks
-
-print("STEP 10")
 
 # ----------------------------
 # Load Environment Variables
@@ -70,7 +62,7 @@ messages_collection = db["messages"]
 # ----------------------------
 class ChatRequest(BaseModel):
     message: str
-    category: str = "admission"
+    category: str
 
 # ----------------------------
 # Health Check
@@ -105,6 +97,11 @@ def get_messages():
 @app.post("/api/chat")
 def chat(request: ChatRequest):
 
+    print("=" * 50)
+    print("Selected Category:", request.category)
+    print("Question:", request.message)
+    print("=" * 50)
+
     # Retrieve relevant chunks from FAISS
     retrieved_chunks = retrieve_chunks(
         request.message,
@@ -115,6 +112,7 @@ def chat(request: ChatRequest):
     context = "\n\n".join(
         chunk["text"] for chunk in retrieved_chunks
     )
+
     print("\n========== RETRIEVED CONTEXT ==========\n")
     print(context)
     print("\n=======================================\n")
@@ -123,11 +121,14 @@ def chat(request: ChatRequest):
     prompt = f"""
 You are Student Support AI.
 
-Answer the student's question ONLY using the context below.
+You must answer ONLY using the information provided in the context.
 
-If the answer is not available in the context, reply exactly:
-
+Rules:
+1. Do not make up information.
+2. If the answer is not present in the context, reply exactly:
 "I couldn't find this information in the uploaded college documents. Please contact the college administration."
+3. Keep the answer clear and concise.
+4. Use bullet points whenever appropriate.
 
 ------------------------
 Context:
@@ -142,7 +143,7 @@ Student Question:
     messages_collection.insert_one({
         "sender": "user",
         "text": request.message,
-        "timestamp": datetime.utcnow()
+        "timestamp": datetime.now()
     })
 
     print("✅ User message saved to MongoDB")
@@ -156,7 +157,7 @@ Student Question:
 
             response = client.models.generate_content(
                 model="gemini-flash-latest",
-                contents=prompt,
+                contents=prompt
             )
 
             end = time.time()
@@ -167,7 +168,7 @@ Student Question:
             messages_collection.insert_one({
                 "sender": "bot",
                 "text": response.text,
-                "timestamp": datetime.utcnow()
+                "timestamp": datetime.now()
             })
 
             print("✅ Bot message saved to MongoDB")
@@ -180,9 +181,17 @@ Student Question:
 
             print("Gemini Error:", e)
 
+            # API quota exhausted
+            if "RESOURCE_EXHAUSTED" in str(e):
+                return {
+                    "reply": "⚠️ The AI service has reached its API quota. Please try again later."
+                }
+
+            # Last retry
             if attempt == 2:
                 return {
                     "reply": "⚠️ Student Support AI is currently busy. Please try again in a few seconds."
                 }
 
+            print(f"Retrying... ({attempt + 1}/3)")
             time.sleep(2)

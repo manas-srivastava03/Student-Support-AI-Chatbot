@@ -5,9 +5,14 @@ import os
 
 
 def create_vector_store(embeddings):
+    embeddings = np.array(embeddings, dtype=np.float32)
+
     dimension = embeddings.shape[1]
+
     index = faiss.IndexFlatL2(dimension)
-    index.add(np.array(embeddings))
+
+    index.add(embeddings)
+
     return index
 
 
