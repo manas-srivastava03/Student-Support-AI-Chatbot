@@ -1,13 +1,14 @@
 const API_BASE_URL = "https://student-support-ai-chatbot-backend.onrender.com";
 
-export async function sendMessage(message) {
+export async function sendMessage(message, category) {
   const response = await fetch(`${API_BASE_URL}/api/chat`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      message: message,
+      message,
+      category,
     }),
   });
 

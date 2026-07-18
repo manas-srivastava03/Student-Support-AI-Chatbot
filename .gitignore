@@ -17,3 +17,15 @@ client/dist/
 # OS
 .DS_Store
 Thumbs.db
+
+#data
+server/data/
+
+#testing files
+server/check_pdf.py
+server/test_chunker.py
+server/test_embeddings.py
+server/test_pdf.py
+server/test_retriever.py
+server/test_save_index.py
+server/test_vector_store.py

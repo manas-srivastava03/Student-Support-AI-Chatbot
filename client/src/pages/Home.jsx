@@ -13,6 +13,7 @@ function Home() {
   const [messages, setMessages] = useState([]);
 
   const [loading, setLoading] = useState(false);
+  const [category, setCategory] = useState("admission");
   const [historyLoaded, setHistoryLoaded] = useState(false);
 
   // Load chat history when the app starts
@@ -68,7 +69,7 @@ function Home() {
     setLoading(true);
 
     try {
-      const aiReply = await sendMessage(messageToSend);
+      const aiReply = await sendMessage(messageToSend, category);
 
       const botMessage = {
         sender: "bot",
@@ -99,6 +100,24 @@ function Home() {
         {historyLoaded && messages.length === 0 && (
           <WelcomeSection onSuggestionClick={handleSuggestionClick} />
         )}
+
+<div className="rounded-xl bg-white border border-gray-200 p-4 shadow-sm">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Knowledge Base
+  </label>
+
+  <select
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+    className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+  >
+    <option value="admission">Admission</option>
+    <option value="academics">Academics</option>
+    <option value="examination">Examination</option>
+    <option value="scholarship">Scholarship</option>
+    <option value="placement">Placement</option>
+  </select>
+</div>
 
         <ChatWindow
           messages={messages}

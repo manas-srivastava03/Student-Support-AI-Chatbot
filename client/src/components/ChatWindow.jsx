@@ -14,7 +14,7 @@ function ChatWindow({ messages, loading }) {
   return (
     <section className="flex h-[550px] flex-col rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
       <h2 className="mb-4 text-xl font-semibold text-gray-900">
-        💬 Conversation
+      💬 Student Support Chat
       </h2>
 
       {/* Scrollable chat area */}

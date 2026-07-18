@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from google import genai
 from pymongo import MongoClient
 
+from rag.retriever import retrieve_chunks
+
 # ----------------------------
 # Load Environment Variables
 # ----------------------------
@@ -24,7 +26,9 @@ app = FastAPI(title="Student Support AI")
 # ----------------------------
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://student-support-ai-chatbot.vercel.app"],
+    allow_origins=[    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://student-support-ai-chatbot.vercel.app",],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -43,7 +47,6 @@ client = genai.Client(
 mongo_client = MongoClient(os.getenv("MONGODB_URI"))
 
 db = mongo_client["student_support_ai"]
-
 messages_collection = db["messages"]
 
 # ----------------------------
@@ -51,6 +54,7 @@ messages_collection = db["messages"]
 # ----------------------------
 class ChatRequest(BaseModel):
     message: str
+    category: str = "admission"
 
 # ----------------------------
 # Health Check
@@ -60,38 +64,55 @@ def health_check():
     return {"status": "ok"}
 
 # ----------------------------
-# Chat Endpoint
+# Clear Chat History
 # ----------------------------
-
 @app.delete("/api/messages")
 def clear_messages():
     messages_collection.delete_many({})
     return {"message": "Chat history cleared"}
 
+# ----------------------------
+# Get Chat History
+# ----------------------------
 @app.get("/api/messages")
 def get_messages():
     messages = list(messages_collection.find({}, {"_id": 0}))
     return messages
 
-
-
+# ----------------------------
+# Chat Endpoint
+# ----------------------------
 @app.post("/api/chat")
 def chat(request: ChatRequest):
 
+    # Retrieve relevant chunks from FAISS
+    retrieved_chunks = retrieve_chunks(
+        request.message,
+        category=request.category
+    )
+
+    # Combine retrieved chunks into context
+    context = "\n\n".join(
+        chunk["text"] for chunk in retrieved_chunks
+    )
+    print("\n========== RETRIEVED CONTEXT ==========\n")
+    print(context)
+    print("\n=======================================\n")
+
+    # Prompt for Gemini
     prompt = f"""
 You are Student Support AI.
 
-Your primary role is to help students with:
-- Admissions
-- Fees
-- Scholarships
-- Examinations
-- Academic rules
-- Campus facilities
+Answer the student's question ONLY using the context below.
 
-If the user asks about general knowledge, answer briefly.
+If the answer is not available in the context, reply exactly:
 
-If they ask about college-specific information that you don't know, clearly state that the information isn't available and advise them to contact the college administration.
+"I couldn't find this information in the uploaded college documents. Please contact the college administration."
+
+------------------------
+Context:
+{context}
+------------------------
 
 Student Question:
 {request.message}
@@ -103,6 +124,7 @@ Student Question:
         "text": request.message,
         "timestamp": datetime.utcnow()
     })
+
     print("✅ User message saved to MongoDB")
 
     # Retry Gemini up to 3 times
@@ -127,6 +149,7 @@ Student Question:
                 "text": response.text,
                 "timestamp": datetime.utcnow()
             })
+
             print("✅ Bot message saved to MongoDB")
 
             return {
